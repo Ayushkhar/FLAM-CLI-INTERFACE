@@ -1,4 +1,5 @@
 # QueueCTL
+Developed By Suryansh Khare(GitHub: https://github.com/Ayushkhar)
 
 ## Architecture Diagrams
 
