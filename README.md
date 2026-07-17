@@ -1,11 +1,5 @@
 # QueueCTL
 
-![CI](https://github.com/YOUR_USERNAME/queuectl/actions/workflows/ci.yml/badge.svg)
-![License](https://img.shields.io/badge/License-MIT-blue.svg)
-![Node](https://img.shields.io/badge/node-%3E%3D20-green.svg)
-
-Production-grade CLI background job queue with worker processes, exponential backoff retries, Dead Letter Queue, and persistent SQLite storage.
-
 ## Architecture Diagrams
 
 **Job Lifecycle State Diagram**
