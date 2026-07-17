@@ -17,7 +17,7 @@ const VALID_STATES: JobState[] = ['pending', 'processing', 'completed', 'failed'
 export const listCommand = new Command('list')
   .description('List jobs by state')
   .requiredOption('-s, --state <state>', `Job state to filter by (${VALID_STATES.join('|')})`)
-  .option('-l, --limit <n>', 'Maximum number of jobs to show', parseInt)
+  .option('-l, --limit <n>', 'Maximum number of jobs to show', (val) => parseInt(val, 10))
   .option('--json', 'Output as JSON', false)
   .addHelpText(
     'after',

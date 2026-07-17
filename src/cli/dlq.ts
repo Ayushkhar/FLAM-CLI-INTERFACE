@@ -21,7 +21,7 @@ dlqCommand
   .command('list')
   .description('List all jobs in the Dead Letter Queue')
   .option('--json', 'Output as JSON', false)
-  .option('-l, --limit <n>', 'Maximum number of jobs to show', parseInt)
+  .option('-l, --limit <n>', 'Maximum number of jobs to show', (val) => parseInt(val, 10))
   .addHelpText(
     'after',
     `

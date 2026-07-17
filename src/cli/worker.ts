@@ -63,9 +63,9 @@ const workerCommand = new Command('worker').description('Manage worker processes
 workerCommand
   .command('start')
   .description('Start one or more worker processes')
-  .requiredOption('-c, --count <n>', 'Number of worker processes to start', parseInt)
-  .option('--poll-interval <ms>', 'How often idle workers check for new jobs (ms)', parseInt)
-  .option('--stale-timeout <s>', 'Stale lock timeout in seconds', parseInt)
+  .requiredOption('-c, --count <n>', 'Number of worker processes to start', (val) => parseInt(val, 10))
+  .option('--poll-interval <ms>', 'How often idle workers check for new jobs (ms)', (val) => parseInt(val, 10))
+  .option('--stale-timeout <s>', 'Stale lock timeout in seconds', (val) => parseInt(val, 10))
   .addHelpText(
     'after',
     `
@@ -168,7 +168,7 @@ Examples:
 workerCommand
   .command('stop')
   .description('Stop running worker processes gracefully')
-  .option('-t, --timeout <seconds>', 'Seconds to wait before force-killing', parseInt, 30)
+  .option('-t, --timeout <seconds>', 'Seconds to wait before force-killing', (val) => parseInt(val, 10), 30)
   .option('--force', 'Force-kill workers immediately', false)
   .addHelpText(
     'after',

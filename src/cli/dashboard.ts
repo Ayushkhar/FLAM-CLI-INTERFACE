@@ -13,7 +13,7 @@ import { startDashboard } from '../dashboard/server';
 
 export const dashboardCommand = new Command('dashboard')
   .description('Start a read-only web dashboard for monitoring')
-  .option('-p, --port <port>', 'Port to listen on', parseInt, 3000)
+  .option('-p, --port <port>', 'Port to listen on', (val) => parseInt(val, 10), 3000)
   .addHelpText(
     'after',
     `

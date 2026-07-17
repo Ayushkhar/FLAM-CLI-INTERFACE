@@ -16,9 +16,9 @@ import { insertJob, insertJobs, type EnqueuePayload } from '../core/jobRepositor
 export const enqueueCommand = new Command('enqueue')
   .description('Add a new job to the queue')
   .argument('[job-json]', 'Job specification as JSON string')
-  .option('-p, --priority <n>', 'Job priority (higher = runs first)', parseInt)
+  .option('-p, --priority <n>', 'Job priority (higher = runs first)', (val) => parseInt(val, 10))
   .option('--run-at <iso>', 'Schedule job for a future time (ISO 8601 timestamp)')
-  .option('--timeout <seconds>', 'Per-job timeout in seconds', parseInt)
+  .option('--timeout <seconds>', 'Per-job timeout in seconds', (val) => parseInt(val, 10))
   .option('-f, --file <path>', 'Batch enqueue from a JSON file containing an array of jobs')
   .addHelpText(
     'after',
