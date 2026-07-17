@@ -1,0 +1,5 @@
+[
+  {"command": "echo hello world", "id": "job-1"},
+  {"command": "echo high priority job", "id": "job-2", "priority": 10},
+  {"command": "cmd /c exit 1", "id": "job-fail", "max_retries": 3}
+]
