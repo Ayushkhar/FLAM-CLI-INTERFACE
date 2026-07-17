@@ -1,12 +1,4 @@
-/**
- * Minimal read-write web dashboard for QueueCTL.
- *
- * Serves a live dashboard showing job counts, recent jobs, and worker status.
- * Auto-refreshes every 2 seconds via fetch. Supports enqueuing custom jobs
- * directly from the web UI to bypass Render Free Tier CLI shell limitations.
- *
- * Usage: queuectl dashboard [--port 3000]
- */
+
 
 import express from 'express';
 import type Database from 'better-sqlite3';
@@ -16,10 +8,7 @@ import type { WorkerInfo, Job } from '../types';
 export function startDashboard(db: Database.Database, port: number): void {
   const app = express();
 
-  // Enable JSON body parsing for API requests
   app.use(express.json());
-
-  // ─── API Endpoints ────────────────────────────────────────────────────────
 
   app.get('/api/status', (_req, res) => {
     const counts = getJobCounts(db);
@@ -42,7 +31,6 @@ export function startDashboard(db: Database.Database, port: number): void {
     res.json(jobs);
   });
 
-  // POST endpoint to allow enqueuing from the dashboard (bypasses Render Free shell limits)
   app.post('/api/enqueue', (req, res) => {
     const { command, priority, max_retries, timeout_seconds } = req.body;
 
@@ -67,8 +55,6 @@ export function startDashboard(db: Database.Database, port: number): void {
       });
     }
   });
-
-  // ─── Dashboard HTML ───────────────────────────────────────────────────────
 
   app.get('/', (_req, res) => {
     res.setHeader('Content-Type', 'text/html');

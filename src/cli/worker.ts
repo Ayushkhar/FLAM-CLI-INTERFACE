@@ -1,13 +1,4 @@
-/**
- * CLI command: queuectl worker start|stop
- *
- * Manages worker processes — forks N child processes that each run
- * the workerProcess.ts main loop, connecting to the same SQLite file.
- *
- * Usage:
- *   queuectl worker start --count 3 [--poll-interval <ms>] [--stale-timeout <s>]
- *   queuectl worker stop [--timeout <s>] [--force]
- */
+
 
 import { Command } from 'commander';
 import { fork, type ChildProcess } from 'child_process';
@@ -32,7 +23,7 @@ function loadPidfile(): WorkerRecord[] {
       return JSON.parse(fs.readFileSync(PIDFILE, 'utf-8'));
     }
   } catch {
-    // Corrupt pidfile — ignore
+    
   }
   return [];
 }
@@ -43,7 +34,7 @@ function clearPidfile(): void {
       fs.unlinkSync(PIDFILE);
     }
   } catch {
-    // Best effort
+    
   }
 }
 
@@ -57,8 +48,6 @@ function isProcessAlive(pid: number): boolean {
 }
 
 const workerCommand = new Command('worker').description('Manage worker processes');
-
-// ─── worker start ─────────────────────────────────────────────────────────────
 
 workerCommand
   .command('start')
@@ -82,13 +71,11 @@ Examples:
       process.exit(1);
     }
 
-    // Initialize DB (creates file + runs migrations if needed)
     getDb();
 
     const dbPath = getDbPath();
     const workerScript = path.resolve(__dirname, '..', 'worker', 'workerProcess.js');
 
-    // Check if workers are already running
     const existing = loadPidfile().filter((r) => isProcessAlive(r.pid));
     if (existing.length > 0) {
       console.log(`⚠️  ${existing.length} worker(s) already running. Starting ${count} more.`);
@@ -130,7 +117,6 @@ Examples:
             console.log(`\n🟢 All ${count} workers started. They will run in the background.`);
             console.log(`   Use "queuectl worker stop" to stop them.`);
 
-            // Disconnect from children so parent can exit
             for (const c of children) {
               c.disconnect();
               c.unref();
@@ -146,7 +132,6 @@ Examples:
       children.push(child);
     }
 
-    // Set a timeout in case workers don't respond
     setTimeout(() => {
       if (started < count) {
         console.warn(`\n⚠️  Only ${started}/${count} workers sent start confirmation.`);
@@ -156,14 +141,12 @@ Examples:
             c.disconnect();
             c.unref();
           } catch {
-            // Already disconnected
+            
           }
         }
       }
     }, 10000);
   });
-
-// ─── worker stop ──────────────────────────────────────────────────────────────
 
 workerCommand
   .command('stop')
@@ -192,7 +175,7 @@ Examples:
     console.log(`🛑 Stopping ${alive.length} worker(s)...`);
 
     if (options.force) {
-      // Force-kill immediately
+      
       for (const r of alive) {
         try {
           process.kill(r.pid, 'SIGKILL');
@@ -203,7 +186,6 @@ Examples:
       }
       clearPidfile();
 
-      // Clean up worker records in DB
       try {
         const db = getDb();
         for (const r of alive) {
@@ -212,14 +194,13 @@ Examples:
           ).run({ workerId: r.workerId });
         }
       } catch {
-        // Best effort
+        
       }
 
       console.log('✅ All workers force-stopped.');
       return;
     }
 
-    // Graceful stop — send SIGTERM
     for (const r of alive) {
       try {
         process.kill(r.pid, 'SIGTERM');
@@ -253,7 +234,7 @@ Examples:
             process.kill(r.pid, 'SIGKILL');
             console.log(`   🔴 Force-killed ${r.workerId} (pid=${r.pid})`);
           } catch {
-            // Already exited
+            
           }
         }
 

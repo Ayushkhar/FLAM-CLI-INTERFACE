@@ -1,21 +1,10 @@
-/**
- * CLI command: queuectl config
- *
- * Manage configuration values stored in the SQLite config table.
- *
- * Usage:
- *   queuectl config set <key> <value>
- *   queuectl config get <key>
- *   queuectl config list
- */
+
 
 import { Command } from 'commander';
 import { getDb } from '../core/db';
 import { getConfig, setConfig, listConfig } from '../core/config';
 
 const configCommand = new Command('config').description('Manage configuration values');
-
-// ─── config set ───────────────────────────────────────────────────────────────
 
 configCommand
   .command('set')
@@ -50,8 +39,6 @@ Examples:
     }
   });
 
-// ─── config get ───────────────────────────────────────────────────────────────
-
 configCommand
   .command('get')
   .description('Get a configuration value')
@@ -75,8 +62,6 @@ Example:
       process.exit(1);
     }
   });
-
-// ─── config list ──────────────────────────────────────────────────────────────
 
 configCommand
   .command('list')

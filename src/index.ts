@@ -1,12 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * QueueCTL — Production-grade CLI background job queue system.
- *
- * Manages background jobs with worker processes, automatic retries
- * with exponential backoff, Dead Letter Queue, and persistent SQLite storage.
- */
-
 import { Command } from 'commander';
 import { enqueueCommand } from './cli/enqueue';
 import { workerCommand } from './cli/worker';
@@ -26,7 +19,6 @@ program
   )
   .version('1.0.0');
 
-// Register all commands
 program.addCommand(enqueueCommand);
 program.addCommand(workerCommand);
 program.addCommand(statusCommand);

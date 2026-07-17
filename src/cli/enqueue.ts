@@ -1,12 +1,4 @@
-/**
- * CLI command: queuectl enqueue
- *
- * Enqueues a new job (or batch of jobs) into the queue.
- *
- * Usage:
- *   queuectl enqueue '{"command":"echo hello"}' [--priority N] [--run-at <iso>] [--timeout <s>]
- *   queuectl enqueue --file jobs.json
- */
+
 
 import { Command } from 'commander';
 import fs from 'fs';
@@ -35,7 +27,7 @@ Examples:
 
     try {
       if (options.file) {
-        // Batch enqueue from file
+        
         const content = fs.readFileSync(options.file, 'utf-8');
         let payloads: EnqueuePayload[];
 
@@ -57,7 +49,7 @@ Examples:
           console.log(`   ${job.id}  ${job.command}`);
         }
       } else if (jobJson) {
-        // Single job enqueue
+        
         let payload: EnqueuePayload;
 
         try {
@@ -68,7 +60,6 @@ Examples:
           process.exit(1);
         }
 
-        // CLI flags override JSON fields
         if (options.priority !== undefined) payload.priority = options.priority;
         if (options.runAt) payload.run_at = options.runAt;
         if (options.timeout !== undefined) payload.timeout_seconds = options.timeout;

@@ -1,11 +1,4 @@
-/**
- * CLI command: queuectl logs <job-id>
- *
- * Shows captured stdout and stderr for a specific job.
- *
- * Usage:
- *   queuectl logs <job-id>
- */
+
 
 import { Command } from 'commander';
 import { getDb } from '../core/db';

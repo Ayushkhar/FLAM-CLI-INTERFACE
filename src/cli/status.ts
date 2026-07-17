@@ -1,11 +1,4 @@
-/**
- * CLI command: queuectl status
- *
- * Shows a summary of job states, active workers, and queue metrics.
- *
- * Usage:
- *   queuectl status [--json]
- */
+
 
 import { Command } from 'commander';
 import { getDb } from '../core/db';
@@ -66,7 +59,6 @@ Example:
       return;
     }
 
-    // Pretty-printed output
     console.log('QUEUE STATUS');
     console.log(`  pending:     ${String(counts.pending).padStart(4)}`);
     console.log(`  processing:  ${String(counts.processing).padStart(4)}`);

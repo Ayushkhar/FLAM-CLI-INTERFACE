@@ -1,9 +1,4 @@
-/**
- * Pino logger configuration for QueueCTL.
- * - Pretty-printed to console for human readability
- * - Structured JSON to file for machine parsing
- * - Every log line for a job includes its job_id
- */
+
 
 import pino from 'pino';
 import path from 'path';
@@ -33,12 +28,10 @@ export const logger = pino({
   },
 });
 
-/** Create a child logger bound to a specific job ID. */
 export function jobLogger(jobId: string) {
   return logger.child({ job_id: jobId });
 }
 
-/** Create a child logger bound to a specific worker ID. */
 export function workerLogger(workerId: string) {
   return logger.child({ worker_id: workerId });
 }

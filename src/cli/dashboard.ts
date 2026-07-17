@@ -1,11 +1,4 @@
-/**
- * CLI command: queuectl dashboard
- *
- * Starts a read-only web dashboard for monitoring jobs and workers.
- *
- * Usage:
- *   queuectl dashboard [--port 3000]
- */
+
 
 import { Command } from 'commander';
 import { getDb } from '../core/db';

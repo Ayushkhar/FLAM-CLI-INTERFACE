@@ -1,11 +1,4 @@
-/**
- * CLI command: queuectl list
- *
- * Lists jobs filtered by state with optional limit.
- *
- * Usage:
- *   queuectl list --state pending [--limit 10] [--json]
- */
+
 
 import { Command } from 'commander';
 import { getDb } from '../core/db';
@@ -49,7 +42,6 @@ Examples:
       return;
     }
 
-    // Table header
     const header = `${'ID'.padEnd(38)} ${'COMMAND'.padEnd(30)} ${'ATTEMPTS'.padEnd(10)} ${'CREATED'.padEnd(24)} ${'LAST ERROR'}`;
     console.log(header);
     console.log('-'.repeat(header.length));

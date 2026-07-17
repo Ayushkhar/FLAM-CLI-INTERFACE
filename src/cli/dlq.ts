@@ -1,21 +1,10 @@
-/**
- * CLI command: queuectl dlq
- *
- * View and manage Dead Letter Queue (DLQ) — jobs that permanently failed.
- *
- * Usage:
- *   queuectl dlq list [--json]
- *   queuectl dlq retry <job-id>
- *   queuectl dlq retry --all
- */
+
 
 import { Command } from 'commander';
 import { getDb } from '../core/db';
 import { listDlq, retryDlqJob, retryAllDlq, getJob } from '../core/jobRepository';
 
 const dlqCommand = new Command('dlq').description('View or retry Dead Letter Queue jobs');
-
-// ─── dlq list ─────────────────────────────────────────────────────────────────
 
 dlqCommand
   .command('list')
@@ -62,8 +51,6 @@ Example:
     console.log(`\nTotal: ${jobs.length} dead job(s)`);
   });
 
-// ─── dlq retry ────────────────────────────────────────────────────────────────
-
 dlqCommand
   .command('retry [job-id]')
   .description('Retry a DLQ job (or all with --all)')
@@ -94,7 +81,6 @@ Examples:
       process.exit(1);
     }
 
-    // Verify job exists and is in DLQ
     const job = getJob(db, jobId);
     if (!job) {
       console.error(`Error: Job "${jobId}" not found.`);

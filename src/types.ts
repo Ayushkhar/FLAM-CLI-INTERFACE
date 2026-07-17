@@ -1,14 +1,9 @@
-/**
- * Shared TypeScript types and interfaces for QueueCTL.
- */
 
-/** Valid states a job can be in throughout its lifecycle. */
+
 export type JobState = 'pending' | 'processing' | 'completed' | 'failed' | 'dead';
 
-/** Valid statuses for a worker process. */
 export type WorkerStatus = 'idle' | 'busy' | 'stopping' | 'stopped';
 
-/** Represents a job row in the SQLite database. */
 export interface Job {
   id: string;
   command: string;
@@ -29,7 +24,6 @@ export interface Job {
   updated_at: string;
 }
 
-/** Represents a worker row in the SQLite database. */
 export interface WorkerInfo {
   worker_id: string;
   pid: number;
@@ -39,7 +33,6 @@ export interface WorkerInfo {
   last_heartbeat: string;
 }
 
-/** Result of executing a job's shell command. */
 export interface ExecutionResult {
   exitCode: number | null;
   stdout: string;
@@ -48,7 +41,6 @@ export interface ExecutionResult {
   error?: string;
 }
 
-/** Counts of jobs grouped by state. */
 export interface JobCounts {
   pending: number;
   processing: number;
@@ -57,7 +49,6 @@ export interface JobCounts {
   dead: number;
 }
 
-/** Extended queue metrics including success rate and timing. */
 export interface QueueMetrics {
   counts: JobCounts;
   avgExecutionTimeMs: number | null;
@@ -65,7 +56,6 @@ export interface QueueMetrics {
   totalProcessed: number;
 }
 
-/** IPC message types for parent ↔ worker process communication. */
 export type WorkerIPCMessage =
   | { type: 'started'; workerId: string; pid: number }
   | { type: 'stopped'; workerId: string }
@@ -73,7 +63,6 @@ export type WorkerIPCMessage =
   | { type: 'stop' }
   | { type: 'stop-force' };
 
-/** Configuration keys that can be set via the config CLI command. */
 export type ConfigKey =
   | 'max-retries'
   | 'backoff-base'
@@ -81,7 +70,6 @@ export type ConfigKey =
   | 'stale-timeout-s'
   | 'default-timeout-s';
 
-/** Default configuration values. */
 export const CONFIG_DEFAULTS: Record<ConfigKey, string> = {
   'max-retries': '3',
   'backoff-base': '2',

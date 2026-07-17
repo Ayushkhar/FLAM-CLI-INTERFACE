@@ -1,11 +1,4 @@
-/**
- * SQLite database connection, migrations, and WAL setup.
- *
- * Uses better-sqlite3 with WAL journal mode, which allows multiple worker
- * processes to read/write the same file concurrently without corruption.
- * The busy_timeout ensures writers wait instead of failing immediately when
- * another process holds the lock.
- */
+
 
 import Database from 'better-sqlite3';
 import path from 'path';
@@ -14,17 +7,10 @@ import { DatabaseError } from '../errors';
 
 let dbInstance: Database.Database | null = null;
 
-/** Resolves the path to the SQLite database file. */
 export function getDbPath(): string {
   return process.env.QUEUECTL_DB_PATH || path.resolve(process.cwd(), 'queuectl.db');
 }
 
-/**
- * Returns a singleton database connection. Creates the database file
- * and runs migrations on first call.
- *
- * @param dbPath - Optional path override (used by tests with temp files)
- */
 export function getDb(dbPath?: string): Database.Database {
   if (dbInstance) return dbInstance;
 
@@ -39,13 +25,10 @@ export function getDb(dbPath?: string): Database.Database {
     );
   }
 
-  // Enable WAL mode for concurrent multi-process access
   dbInstance.pragma('journal_mode = WAL');
 
-  // Wait up to 5 seconds if the database is locked by another process
   dbInstance.pragma('busy_timeout = 5000');
 
-  // Enable foreign keys
   dbInstance.pragma('foreign_keys = ON');
 
   runMigrations(dbInstance);
@@ -54,10 +37,6 @@ export function getDb(dbPath?: string): Database.Database {
   return dbInstance;
 }
 
-/**
- * Opens a NEW (non-singleton) database connection.
- * Used by worker processes that each need their own connection.
- */
 export function openDb(dbPath?: string): Database.Database {
   const resolvedPath = dbPath || getDbPath();
 
@@ -81,7 +60,6 @@ export function openDb(dbPath?: string): Database.Database {
   return db;
 }
 
-/** Runs CREATE TABLE IF NOT EXISTS for all three tables. */
 function runMigrations(db: Database.Database): void {
   db.exec(`
     CREATE TABLE IF NOT EXISTS jobs (
@@ -125,7 +103,6 @@ function runMigrations(db: Database.Database): void {
   `);
 }
 
-/** Seeds default config values if they don't already exist. */
 function seedDefaults(db: Database.Database): void {
   const insert = db.prepare('INSERT OR IGNORE INTO config (key, value) VALUES (?, ?)');
 
@@ -138,7 +115,6 @@ function seedDefaults(db: Database.Database): void {
   seedAll();
 }
 
-/** Closes the singleton database connection. */
 export function closeDb(): void {
   if (dbInstance) {
     dbInstance.close();
@@ -146,16 +122,10 @@ export function closeDb(): void {
   }
 }
 
-/** Resets the singleton (used in tests). */
 export function resetDbInstance(): void {
   dbInstance = null;
 }
 
-/**
- * Gets a config value from the database, falling back to the compiled default.
- * This is a convenience function used internally — the full config module
- * provides richer functionality.
- */
 export function getConfigValue(db: Database.Database, key: ConfigKey): string {
   const row = db.prepare('SELECT value FROM config WHERE key = ?').get(key) as
     | { value: string }
