@@ -4,10 +4,13 @@ import { Command } from 'commander';
 import { enqueueCommand } from './cli/enqueue';
 import { workerCommand } from './cli/worker';
 import { statusCommand } from './cli/status';
+
 import { listCommand } from './cli/list';
 import { dlqCommand } from './cli/dlq';
 import { logsCommand } from './cli/logs';
+
 import { configCommand } from './cli/configCmd';
+
 import { dashboardCommand } from './cli/dashboard';
 
 const program = new Command();
