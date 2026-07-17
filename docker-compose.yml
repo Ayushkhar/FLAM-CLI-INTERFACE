@@ -13,7 +13,7 @@ services:
       - NODE_ENV=production
     ports:
       - "3000:3000"
-    command: ["dashboard", "--port", "3000"]
+    command: ["node", "dist/index.js", "dashboard", "--port", "3000"]
 
   # 2. Background Workers (Runs persistently, restarts on crash)
   worker:
@@ -26,7 +26,7 @@ services:
       - QUEUECTL_DB_PATH=/app/data/queuectl.db
       - NODE_ENV=production
     # Directly run the worker process main loop in the foreground
-    entrypoint: ["node", "dist/worker/workerProcess.js"]
+    command: ["node", "dist/worker/workerProcess.js"]
 
 volumes:
   queuectl-data:

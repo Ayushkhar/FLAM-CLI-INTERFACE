@@ -32,6 +32,9 @@ ENV NODE_ENV=production
 # Expose dashboard port
 EXPOSE 3000
 
-# Default entrypoint — user can override with specific commands
-ENTRYPOINT ["node", "dist/index.js"]
-CMD ["--help"]
+# Copy verification and startup scripts
+COPY scripts/ ./scripts/
+RUN chmod +x ./scripts/*.sh
+
+# Default command — can be overridden on Render/Docker
+CMD ["node", "dist/index.js", "--help"]
