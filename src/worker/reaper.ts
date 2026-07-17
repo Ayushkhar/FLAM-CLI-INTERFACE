@@ -5,37 +5,37 @@ import { getStaleJobs, reclaimStaleJob } from '../core/jobRepository';
 import { getConfigNum } from '../core/config';
 
 export function reapStaleJobs(db: Database.Database, currentWorkerId: string): number {
-  const staleTimeoutS = getConfigNum(db, 'stale-timeout-s');
-  const backoffBase = getConfigNum(db, 'backoff-base');
+ const staleTimeoutS = getConfigNum(db, 'stale-timeout-s');
+ const backoffBase = getConfigNum(db, 'backoff-base');
 
-  const staleJobs = getStaleJobs(db, staleTimeoutS);
-  let reclaimed = 0;
+ const staleJobs = getStaleJobs(db, staleTimeoutS);
+ let reclaimed = 0;
 
-  for (const job of staleJobs) {
-    
-    if (job.worker_id === currentWorkerId) continue;
+ for (const job of staleJobs) {
+ 
+ if (job.worker_id === currentWorkerId) continue;
 
-    try {
-      reclaimStaleJob(db, job, backoffBase);
-      reclaimed++;
-    } catch {
-      
-    }
-  }
+ try {
+ reclaimStaleJob(db, job, backoffBase);
+ reclaimed++;
+ } catch {
+ 
+ }
+ }
 
-  cleanupStaleWorkers(db, staleTimeoutS);
+ cleanupStaleWorkers(db, staleTimeoutS);
 
-  return reclaimed;
+ return reclaimed;
 }
 
 function cleanupStaleWorkers(db: Database.Database, staleTimeoutS: number): void {
-  
-  const threshold = new Date(Date.now() - staleTimeoutS * 2 * 1000).toISOString();
+ 
+ const threshold = new Date(Date.now() - staleTimeoutS * 2 * 1000).toISOString();
 
-  db.prepare(
-    `UPDATE workers
-     SET status = 'stopped', current_job_id = NULL
-     WHERE status IN ('idle', 'busy')
-       AND last_heartbeat < @threshold`,
-  ).run({ threshold });
+ db.prepare(
+ `UPDATE workers
+ SET status = 'stopped', current_job_id = NULL
+ WHERE status IN ('idle', 'busy')
+ AND last_heartbeat < @threshold`,
+ ).run({ threshold });
 }

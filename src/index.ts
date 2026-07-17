@@ -16,11 +16,11 @@ import { dashboardCommand } from './cli/dashboard';
 const program = new Command();
 
 program
-  .name('queuectl')
-  .description(
-    'Production-grade CLI background job queue with worker processes, retries, and DLQ',
-  )
-  .version('1.0.0');
+ .name('queuectl')
+ .description(
+ 'Production-grade CLI background job queue with worker processes, retries, and DLQ',
+ )
+ .version('1.0.0');
 
 program.addCommand(enqueueCommand);
 program.addCommand(workerCommand);
