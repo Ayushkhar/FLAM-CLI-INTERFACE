@@ -304,7 +304,10 @@ function getDashboardHTML(): string {
 </head>
 <body>
   <div class="header">
-    <h1><span>Queue</span>CTL Dashboard</h1>
+    <div>
+      <h1><span>Queue</span>CTL Dashboard</h1>
+      <p style="font-size: 0.8rem; color: #64748b; margin-top: 0.25rem; font-weight: 500;">Developed by Suryansh Khare</p>
+    </div>
     <div><span class="status-dot"></span> Live</div>
   </div>
   <div class="container">
