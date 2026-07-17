@@ -376,7 +376,7 @@ function getDashboardHTML(): string {
 
       if (!command) {
         feedback.style.color = '#ef4444';
-        feedback.innerText = '❌ Error: Command cannot be empty';
+        feedback.innerText = 'Error: Command cannot be empty';
         return;
       }
 
@@ -393,15 +393,15 @@ function getDashboardHTML(): string {
 
         if (data.success) {
           feedback.style.color = '#22c55e';
-          feedback.innerText = '✅ Job enqueued successfully: ' + data.job.id;
+          feedback.innerText = 'Job enqueued successfully: ' + data.job.id;
           refresh();
         } else {
           feedback.style.color = '#ef4444';
-          feedback.innerText = '❌ Error: ' + data.error;
+          feedback.innerText = 'Error: ' + data.error;
         }
       } catch (err) {
         feedback.style.color = '#ef4444';
-        feedback.innerText = '❌ Request failed: ' + err.message;
+        feedback.innerText = 'Request failed: ' + err.message;
       }
     }
 
