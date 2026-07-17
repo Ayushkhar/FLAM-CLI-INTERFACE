@@ -1,20 +1,23 @@
 /**
- * Minimal read-only web dashboard for QueueCTL.
+ * Minimal read-write web dashboard for QueueCTL.
  *
  * Serves a live dashboard showing job counts, recent jobs, and worker status.
- * Auto-refreshes every 2 seconds via fetch. No React, no build step — just
- * inline HTML/CSS/JS served from Express.
+ * Auto-refreshes every 2 seconds via fetch. Supports enqueuing custom jobs
+ * directly from the web UI to bypass Render Free Tier CLI shell limitations.
  *
  * Usage: queuectl dashboard [--port 3000]
  */
 
 import express from 'express';
 import type Database from 'better-sqlite3';
-import { getJobCounts, getMetrics, listJobs } from '../core/jobRepository';
+import { getJobCounts, getMetrics, listJobs, insertJob } from '../core/jobRepository';
 import type { WorkerInfo, Job } from '../types';
 
 export function startDashboard(db: Database.Database, port: number): void {
   const app = express();
+
+  // Enable JSON body parsing for API requests
+  app.use(express.json());
 
   // ─── API Endpoints ────────────────────────────────────────────────────────
 
@@ -37,6 +40,32 @@ export function startDashboard(db: Database.Database, port: number): void {
       limit,
     );
     res.json(jobs);
+  });
+
+  // POST endpoint to allow enqueuing from the dashboard (bypasses Render Free shell limits)
+  app.post('/api/enqueue', (req, res) => {
+    const { command, priority, max_retries, timeout_seconds } = req.body;
+
+    if (!command || typeof command !== 'string') {
+      res.status(400).json({ success: false, error: 'Command string is required' });
+      return;
+    }
+
+    try {
+      const job = insertJob(db, {
+        command,
+        priority: priority !== undefined ? Number(priority) : undefined,
+        max_retries: max_retries !== undefined ? Number(max_retries) : undefined,
+        timeout_seconds: timeout_seconds !== undefined ? Number(timeout_seconds) : undefined,
+      });
+
+      res.json({ success: true, job });
+    } catch (err) {
+      res.status(400).json({
+        success: false,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
   });
 
   // ─── Dashboard HTML ───────────────────────────────────────────────────────
@@ -145,6 +174,76 @@ function getDashboardHTML(): string {
     }
     .metric .value { font-size: 1.25rem; font-weight: 700; color: #38bdf8; }
     .metric .label { font-size: 0.8rem; color: #94a3b8; }
+    
+    /* Enqueue Form styles */
+    .enqueue-section {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .enqueue-form {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+    .form-group {
+      flex: 1;
+      min-width: 120px;
+    }
+    .form-group.wide {
+      flex: 3;
+      min-width: 250px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .form-group input {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 0.6rem;
+      color: #e2e8f0;
+      font-size: 0.9rem;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #38bdf8;
+    }
+    .form-group input.code {
+      font-family: 'SF Mono', 'Cascadia Code', monospace;
+    }
+    .enqueue-btn {
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      border: none;
+      border-radius: 6px;
+      padding: 0.6rem 2rem;
+      color: #0f172a;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .enqueue-btn:hover {
+      opacity: 0.9;
+    }
+    .enqueue-btn:active {
+      transform: scale(0.98);
+    }
+    .feedback {
+      margin-top: 0.75rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      min-height: 1.25rem;
+    }
+
     .section { margin-bottom: 2rem; }
     .section h2 {
       font-size: 1.1rem;
@@ -211,6 +310,32 @@ function getDashboardHTML(): string {
   <div class="container">
     <div class="cards" id="cards"></div>
     <div class="metrics-row" id="metrics"></div>
+
+    <!-- Enqueue Job Box (Direct Web UI Interaction) -->
+    <div class="enqueue-section">
+      <h2 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">
+        Enqueue Custom Job
+      </h2>
+      <div class="enqueue-form">
+        <div class="form-group wide">
+          <label for="cmd">Shell Command</label>
+          <input type="text" id="cmd" class="code" placeholder="e.g., echo 'Hello World'" value="echo 'Hello Flam!'">
+        </div>
+        <div class="form-group">
+          <label for="priority">Priority</label>
+          <input type="number" id="priority" value="0" min="0" max="100">
+        </div>
+        <div class="form-group">
+          <label for="retries">Max Retries</label>
+          <input type="number" id="retries" value="3" min="1" max="10">
+        </div>
+        <div>
+          <button class="enqueue-btn" onclick="enqueueJob()">Enqueue</button>
+        </div>
+      </div>
+      <div id="feedback" class="feedback"></div>
+    </div>
+
     <div class="section">
       <h2>Workers</h2>
       <table id="workers-table">
@@ -241,6 +366,43 @@ function getDashboardHTML(): string {
 
     function truncate(str, len) {
       return str && str.length > len ? str.slice(0, len-3) + '...' : (str || '');
+    }
+
+    async function enqueueJob() {
+      const command = document.getElementById('cmd').value.trim();
+      const priority = parseInt(document.getElementById('priority').value, 10) || 0;
+      const max_retries = parseInt(document.getElementById('retries').value, 10) || 3;
+      const feedback = document.getElementById('feedback');
+
+      if (!command) {
+        feedback.style.color = '#ef4444';
+        feedback.innerText = '❌ Error: Command cannot be empty';
+        return;
+      }
+
+      feedback.style.color = '#38bdf8';
+      feedback.innerText = 'Enqueuing...';
+
+      try {
+        const response = await fetch('/api/enqueue', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ command, priority, max_retries })
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          feedback.style.color = '#22c55e';
+          feedback.innerText = '✅ Job enqueued successfully: ' + data.job.id;
+          refresh();
+        } else {
+          feedback.style.color = '#ef4444';
+          feedback.innerText = '❌ Error: ' + data.error;
+        }
+      } catch (err) {
+        feedback.style.color = '#ef4444';
+        feedback.innerText = '❌ Request failed: ' + err.message;
+      }
     }
 
     async function refresh() {
