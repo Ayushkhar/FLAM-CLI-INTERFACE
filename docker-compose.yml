@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  # 1. Live Web Dashboard (Runs persistently on port 3000)
+  dashboard:
+    build: .
+    container_name: queuectl-dashboard
+    restart: always
+    volumes:
+      - queuectl-data:/app/data
+    environment:
+      - QUEUECTL_DB_PATH=/app/data/queuectl.db
+      - NODE_ENV=production
+    ports:
+      - "3000:3000"
+    command: ["dashboard", "--port", "3000"]
+
+  # 2. Background Workers (Runs persistently, restarts on crash)
+  worker:
+    build: .
+    container_name: queuectl-worker
+    restart: always
+    volumes:
+      - queuectl-data:/app/data
+    environment:
+      - QUEUECTL_DB_PATH=/app/data/queuectl.db
+      - NODE_ENV=production
+    # Directly run the worker process main loop in the foreground
+    entrypoint: ["node", "dist/worker/workerProcess.js"]
+
+volumes:
+  queuectl-data:
+    driver: local

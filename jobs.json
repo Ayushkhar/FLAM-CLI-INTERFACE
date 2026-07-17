@@ -1,0 +1,1 @@
+﻿[{"command":"echo hello world","id":"job-1"},{"command":"echo second job","id":"job-2"},{"command":"exit 1","id":"job-fail","max_retries":2}]
