@@ -1,5 +1,9 @@
 # QueueCTL
 Developed By Suryansh Khare(GitHub: https://github.com/Ayushkhar)
+# Deployed Link
+https://queuectl.suryanshkhare.online/
+# Live video demonstration
+https://www.loom.com/share/922691c04da94450aded753bd0e673ec
 
 ## Architecture Diagrams
 
